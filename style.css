@@ -822,70 +822,164 @@
       }
 
       /* Responsive Design */
-      @media (max-width: 1024px) {
-        .main-content {
-          grid-template-columns: 1fr;
-        }
+      /* ===================== Responsive Design ===================== */
 
-        .dashboard-section {
-          grid-column: span 1;
-        }
-      }
+/* Tablets and below (≤ 1024px) */
+@media (max-width: 1024px) {
+  .main-content {
+    grid-template-columns: 1fr;
+  }
 
-      @media (max-width: 768px) {
-        .container {
-          padding: 0.5rem;
-        }
+  .dashboard-section {
+    grid-column: span 1;
+  }
+}
 
-        .logo h1 {
-          font-size: 2.5rem;
-        }
+/* Medium devices (≤ 768px) */
+@media (max-width: 768px) {
+  .container {
+    padding: 0.5rem;
+  }
 
-        .stats-grid {
-          grid-template-columns: repeat(2, 1fr);
-          gap: 1rem;
-        }
+  .logo h1 {
+    font-size: 2.5rem;
+  }
 
-        .nav-tabs {
-          flex-wrap: wrap;
-          justify-content: center;
-        }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
 
-        .export-buttons {
-          flex-direction: column;
-          align-items: center;
-        }
+  .nav-tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 
-        .expense-actions {
-          flex-direction: column;
-          gap: 0.5rem;
-          align-items: flex-end;
-        }
+  .export-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
 
-        .notification {
-          right: 1rem;
-          left: 1rem;
-          transform: translateY(-100px);
-        }
+  .expense-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
+  }
 
-        .notification.show {
-          transform: translateY(0);
-        }
-      }
+  .notification {
+    right: 1rem;
+    left: 1rem;
+    transform: translateY(-100px);
+  }
 
-      @media (max-width: 480px) {
-        .stats-grid {
-          grid-template-columns: 1fr;
-        }
+  .notification.show {
+    transform: translateY(0);
+  }
+}
 
-        .logo h1 {
-          font-size: 2rem;
-        }
+/* Small devices (≤ 600px) */
+@media (max-width: 600px) {
+  .nav-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 0.5rem;
+  }
 
-        .section {
-          padding: 1.5rem;
-        }
-      }
+  .nav-btn {
+    flex: 0 0 auto;
+  }
+
+  .expense-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  .export-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .export-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Phones (≤ 480px) */
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .logo h1 {
+    font-size: 2rem;
+  }
+
+  .section {
+    padding: 1.5rem;
+  }
+
+  .main-content {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .form-input,
+  .form-select,
+  .submit-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .expense-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .expense-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .expense-amount {
+    font-size: 1.1rem;
+  }
+
+  .form-label {
+    font-size: 0.85rem;
+  }
+}
+
+/* Extra small phones (≤ 360px) */
+@media (max-width: 360px) {
+  .logo h1 {
+    font-size: 1.6rem;
+  }
+
+  .logo p {
+    font-size: 1rem;
+  }
+
+  .submit-btn {
+    font-size: 0.9rem;
+  }
+
+  .form-input,
+  .form-select {
+    font-size: 0.9rem;
+  }
+
+  .expense-desc {
+    font-size: 1rem;
+  }
+
+  .expense-meta {
+    font-size: 0.8rem;
+  }
+}
+
 
       /* Loading Animation */
       .loading {
