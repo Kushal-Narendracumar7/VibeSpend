@@ -1,1180 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>💸 VibeSpend - Track Your Bag 💸</title>
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
-    <link rel="icon" href="logo.png" type="image/x-icon" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💸 VibeSpend - Track Your Expenses</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-  </head>
-  <body>
-    <!-- Auth Screen (Visible initially) -->
+    
+</head>
+<body>
+    <!-- Auth Screen -->
     <div class="auth-container" id="auth-container">
-      <div class="auth-box">
-        <h2>💸 Welcome to VibeSpend 💸</h2>
-        <p>Sign up or log in to track your financial vibes!</p>
-        
-        <div class="auth-tabs">
-          <button class="auth-tab active" onclick="showAuthTab('login')">Log In</button>
-          <button class="auth-tab" onclick="showAuthTab('signup')">Sign Up</button>
-        </div>
+        <div class="auth-box">
+            <h2>💸 Welcome to VibeSpend 💸</h2>
+            <p>Sign up or log in to track your financial vibes!</p>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="showAuthTab('login')">Log In</button>
+                <button class="auth-tab" onclick="showAuthTab('signup')">Sign Up</button>
+            </div>
 
-        <!-- Login Form -->
-        <div id="login-form" class="auth-form active">
-          <input type="email" id="login-email" placeholder="Email" required>
-          <input type="password" id="login-password" placeholder="Password" required>
-          <button onclick="logIn()" class="auth-btn">
-            <i class="fas fa-sign-in-alt"></i> Log In
-          </button>
-        </div>
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form active">
+                <input type="email" id="login-email" placeholder="Enter your email" required>
+                <input type="password" id="login-password" placeholder="Enter your password" required>
+                <button onclick="logIn()" class="auth-btn">
+                    <i class="fas fa-sign-in-alt"></i> Log In
+                </button>
+            </div>
 
-        <!-- Signup Form -->
-        <div id="signup-form" class="auth-form">
-          <input type="email" id="signup-email" placeholder="Email" required>
-          <input type="password" id="signup-password" placeholder="Password (min 6 chars)" required>
-          <button onclick="signUp()" class="auth-btn">
-            <i class="fas fa-user-plus"></i> Sign Up
-          </button>
-        </div>
+            <!-- Signup Form -->
+            <div id="signup-form" class="auth-form">
+                <input type="email" id="signup-email" placeholder="Enter your email" required>
+                <input type="password" id="signup-password" placeholder="Password (min 6 chars)" required>
+                <button onclick="signUp()" class="auth-btn">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </button>
+            </div>
 
-        <div class="auth-loading" id="auth-loading" style="display: none;">
-          <div class="loading-spinner"></div>
-          <p>Getting your vibes ready...</p>
+            <div class="auth-loading" id="auth-loading" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Getting your vibes ready...</p>
+            </div>
         </div>
-      </div>
     </div>
 
-    <!-- Main App (Hidden initially) -->
+    <!-- Main App -->
     <div class="app-container" id="app-container" style="display: none;">
-      <div class="user-info">
-        <span id="user-email"></span>
-        <button onclick="logOut()" class="logout-btn">
-          <i class="fas fa-sign-out-alt"></i> Log Out
-        </button>
-      </div>
+        <!-- User Info -->
+        <div class="user-info">
+            <span id="user-email"></span>
+            <button onclick="logOut()" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Log Out
+            </button>
+        </div>
 
-      <div class="container">
+        <!-- Header -->
         <header class="header">
-          <div class="logo">
-            <h1>💸 <span class="slang-text">VibeSpend</span> 💸</h1>
-            <p>Track your bag like a boss! No cap! 🔥</p>
-          </div>
-
-          <div class="nav-container">
-            <nav class="nav-tabs">
-              <div class="nav-indicator"></div>
-              <button class="nav-btn active" data-section="dashboard">
-                <i class="fas fa-fire"></i> Dashboard
-              </button>
-              <button class="nav-btn" data-section="upi">
-                <i class="fas fa-mobile-alt"></i> UPI Vibes
-              </button>
-              <button class="nav-btn" data-section="cash">
-                <i class="fas fa-money-bill-wave"></i> Cash Gang
-              </button>
-            </nav>
-          </div>
+            <div class="logo">
+                <h1>💸 VibeSpend 💸</h1>
+                <p>Track your expenses like a boss! 🔥</p>
+            </div>
         </header>
 
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-wallet"></i></div>
-            <div class="stat-value" id="total-expenses">₹0.00</div>
-            <div class="stat-label">Total Spent (Ouch!)</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-mobile-alt"></i></div>
-            <div class="stat-value" id="upi-total">₹0.00</div>
-            <div class="stat-label">Digital Flex</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
-            <div class="stat-value" id="cash-total">₹0.00</div>
-            <div class="stat-label">Old School Cash</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
-            <div class="stat-value" id="today-expenses">₹0.00</div>
-            <div class="stat-label">Today's Damage</div>
-          </div>
+        <!-- Navigation -->
+        <div class="nav-container">
+            <nav class="nav-tabs">
+                <div class="nav-indicator"></div>
+                <button class="nav-btn active" data-section="dashboard">
+                    <i class="fas fa-fire"></i> Dashboard
+                </button>
+                <button class="nav-btn" data-section="upi">
+                    <i class="fas fa-mobile-alt"></i> UPI Payments
+                </button>
+                <button class="nav-btn" data-section="cash">
+                    <i class="fas fa-money-bill-wave"></i> Cash Expenses
+                </button>
+            </nav>
         </div>
 
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                <div class="stat-value" id="total-expenses">₹0.00</div>
+                <div class="stat-label">Total Spent</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-mobile-alt"></i></div>
+                <div class="stat-value" id="upi-total">₹0.00</div>
+                <div class="stat-label">Digital Payments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                <div class="stat-value" id="cash-total">₹0.00</div>
+                <div class="stat-label">Cash Expenses</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
+                <div class="stat-value" id="today-expenses">₹0.00</div>
+                <div class="stat-label">Today's Spending</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
         <main class="main-content">
-          <!-- Dashboard Section -->
-          <section id="dashboard-section" class="section dashboard-section active">
-            <h2><i class="fas fa-fire"></i> Recent Spends (The Tea ☕)</h2>
-            <div class="expense-list" id="recent-expenses">
-              <div class="empty-state">
-                <i class="fas fa-ghost"></i>
-                <h3>It's giving empty vibes</h3>
-                <p>No expenses yet bestie! Start tracking your bag to see the receipts here 💅</p>
-              </div>
-            </div>
-          </section>
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="section active">
+                <h2><i class="fas fa-fire"></i> Recent Expenses</h2>
+                <div class="expense-list" id="recent-expenses">
+                    <div class="empty-state">
+                        <i class="fas fa-ghost"></i>
+                        <h3>No expenses yet!</h3>
+                        <p>Start tracking your expenses to see them here. Add your first expense using the navigation above!</p>
+                    </div>
+                </div>
+            </section>
 
-          <!-- UPI Section -->
-          <section id="upi-section" class="section">
-            <h2><i class="fas fa-mobile-alt"></i> UPI Spends (Digital Era)</h2>
-            <form class="expense-form" id="upi-form">
-              <div class="form-group">
-                <label class="form-label">What did you buy? (Spill the tea)</label>
-                <input type="text" class="form-input" id="upi-desc" placeholder="Spill bestie... what was it? 👀" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">How much damage? 💸</label>
-                <input type="number" class="form-input" id="upi-amount" placeholder="₹0.00 (be honest bestie)" step="0.01" min="0" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Vibe Category</label>
-                <select class="form-select" id="upi-category" required>
-                  <option value="">Choose your poison ✨</option>
-                  <option value="food">🍽️ Food (We love a foodie)</option>
-                  <option value="transport">🚗 Transport (Getting places)</option>
-                  <option value="shopping">🛍️ Shopping (Retail therapy hit?)</option>
-                  <option value="entertainment">🎬 Fun Times (Living your best life)</option>
-                  <option value="utilities">⚡ Bills (Adulting is hard)</option>
-                  <option value="healthcare">🏥 Health (Self-care queen)</option>
-                  <option value="education">📚 Learning (Big brain energy)</option>
-                  <option value="other">📋 Other (Mystery spending)</option>
-                </select>
-              </div>
-              <button type="submit" class="submit-btn pulse" id="upi-submit">
-                <i class="fas fa-plus"></i> Add to the Receipts
-              </button>
-            </form>
-            <div class="expense-list" id="upi-list">
-              <div class="empty-state">
-                <i class="fas fa-mobile-alt"></i>
-                <h3>No UPI spends yet</h3>
-                <p>Time to add some digital receipts! Your phone is waiting 📱</p>
-              </div>
-            </div>
-          </section>
+            <!-- UPI Section -->
+            <section id="upi-section" class="section">
+                <h2><i class="fas fa-mobile-alt"></i> UPI Payments</h2>
+                <form class="expense-form" id="upi-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-input" id="upi-desc" placeholder="What did you buy?" required />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount</label>
+                            <input type="number" class="form-input" id="upi-amount" placeholder="₹0.00" step="0.01" min="0" required />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="upi-category" required>
+                                <option value="">Select category</option>
+                                <option value="food">🍽️ Food & Dining</option>
+                                <option value="transport">🚗 Transportation</option>
+                                <option value="shopping">🛍️ Shopping</option>
+                                <option value="entertainment">🎬 Entertainment</option>
+                                <option value="utilities">⚡ Bills & Utilities</option>
+                                <option value="healthcare">🏥 Healthcare</option>
+                                <option value="education">📚 Education</option>
+                                <option value="other">📋 Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn" id="upi-submit">
+                        <i class="fas fa-plus"></i> Add UPI Expense
+                    </button>
+                </form>
+                <div class="expense-list" id="upi-list">
+                    <div class="empty-state">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h3>No UPI payments yet</h3>
+                        <p>Add your first digital payment above to start tracking your UPI expenses!</p>
+                    </div>
+                </div>
+            </section>
 
-          <!-- Cash Section -->
-          <section id="cash-section" class="section">
-            <h2><i class="fas fa-money-bill-wave"></i> Cash Spends (Old School Vibes)</h2>
-            <form class="expense-form" id="cash-form">
-              <div class="form-group">
-                <label class="form-label">What was worth the cash? 💰</label>
-                <input type="text" class="form-input" id="cash-desc" placeholder="Old school spending... what was it? 🪙" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Cash gone where? 💸</label>
-                <input type="number" class="form-input" id="cash-amount" placeholder="₹0.00 (count those bills)" step="0.01" min="0" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Cash Category</label>
-                <select class="form-select" id="cash-category" required>
-                  <option value="">Pick your vibe ✨</option>
-                  <option value="food">🍽️ Food (Cash for snacks)</option>
-                  <option value="transport">🚗 Transport (Cab money)</option>
-                  <option value="shopping">🛍️ Shopping (Cash shopping spree)</option>
-                  <option value="entertainment">🎬 Fun Times (Cash for good times)</option>
-                  <option value="utilities">⚡ Bills (Paying the man)</option>
-                  <option value="healthcare">🏥 Health (Cash for wellness)</option>
-                  <option value="education">📚 Learning (Investment in yourself)</option>
-                  <option value="other">📋 Other (Random cash things)</option>
-                </select>
-              </div>
-              <button type="submit" class="submit-btn pulse" id="cash-submit">
-                <i class="fas fa-plus"></i> Add Cash Receipt
-              </button>
-            </form>
-            <div class="expense-list" id="cash-list">
-              <div class="empty-state">
-                <i class="fas fa-money-bill-wave"></i>
-                <h3>No cash spends yet</h3>
-                <p>Old school money tracking! Add your cash receipts here 💵</p>
-              </div>
-            </div>
-          </section>
+            <!-- Cash Section -->
+            <section id="cash-section" class="section">
+                <h2><i class="fas fa-money-bill-wave"></i> Cash Expenses</h2>
+                <form class="expense-form" id="cash-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-input" id="cash-desc" placeholder="What did you spend on?" required />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount</label>
+                            <input type="number" class="form-input" id="cash-amount" placeholder="₹0.00" step="0.01" min="0" required />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="cash-category" required>
+                                <option value="">Select category</option>
+                                <option value="food">🍽️ Food & Dining</option>
+                                <option value="transport">🚗 Transportation</option>
+                                <option value="shopping">🛍️ Shopping</option>
+                                <option value="entertainment">🎬 Entertainment</option>
+                                <option value="utilities">⚡ Bills & Utilities</option>
+                                <option value="healthcare">🏥 Healthcare</option>
+                                <option value="education">📚 Education</option>
+                                <option value="other">📋 Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn" id="cash-submit">
+                        <i class="fas fa-plus"></i> Add Cash Expense
+                    </button>
+                </form>
+                <div class="expense-list" id="cash-list">
+                    <div class="empty-state">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <h3>No cash expenses yet</h3>
+                        <p>Add your first cash expense above to start tracking your offline spending!</p>
+                    </div>
+                </div>
+            </section>
         </main>
 
+        <!-- Export Section -->
         <div class="export-section">
-          <h3><i class="fas fa-download"></i> Export Your Financial Tea ☕</h3>
-          <div class="export-buttons">
-            <button class="export-btn csv" onclick="exportData('csv')">
-              <i class="fas fa-file-csv"></i> CSV Download (Spreadsheet Vibes)
-            </button>
-            <button class="export-btn json" onclick="exportData('json')">
-              <i class="fas fa-file-code"></i> JSON Export (Tech Savvy)
-            </button>
-            <button class="export-btn clear" onclick="clearAllData()">
-              <i class="fas fa-fire"></i> Burn It All (Reset Everything)
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <button class="theme-toggle" onclick="toggleVibes()" title="Switch the vibes">
-        <i class="fas fa-palette"></i>
-      </button>
-
-      <button class="fab" onclick="quickAdd()" title="Quick add expense">
-        <i class="fas fa-plus"></i>
-      </button>
-    </div>
-
-    <div class="notification" id="notification">
-      <i class="fas fa-check-circle"></i>
-      <span id="notification-text"></span>
-    </div>
-
-    <script>
-      // Firebase Configuration
-      const firebaseConfig = {
-        apiKey: "AIzaSyAsc5oI 9fiLD3xfOS7fh7V_NvGJ-VCsans",
-        authDomain: "vibespend-603c6.firebaseapp.com",
-        projectId: "vibespend-603c6",
-        storageBucket: "vibespend-603c6.firebasestorage.app",
-        messagingSenderId: "175106283508",
-        appId: "1:175106283508:web:799f6ebd8c1c06f0314ba1"
-      };
-
-      // Initialize Firebase
-      if (!firebase.apps?.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      
-      const auth = firebase.auth();
-      const db = firebase.firestore();
-      let currentUser = null;
-
-      // Auth State Management
-      auth.onAuthStateChanged((user) => {
-        if (user) {
-          currentUser = user;
-          showApp();
-          if (window.app) {
-            window.app.init();
-          } else {
-            // Initialize app after user is authenticated
-            setTimeout(() => {
-              window.app = new VibeSpendTracker();
-            }, 100);
-          }
-        } else {
-          currentUser = null;
-          showAuth();
-        }
-      });
-
-      // Show/Hide Auth and App
-      function showAuth() {
-        document.getElementById('auth-container').style.display = 'flex';
-        document.getElementById('app-container').style.display = 'none';
-      }
-
-      function showApp() {
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('app-container').style.display = 'block';
-        document.getElementById('user-email').textContent = currentUser?.email || '';
-      }
-
-      // Auth Tab Switching
-      function showAuthTab(tab) {
-        // Remove active from all tabs and forms
-        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-        
-        // Add active to selected tab and form
-        document.querySelector(`[onclick="showAuthTab('${tab}')"]`).classList.add('active');
-        document.getElementById(`${tab}-form`).classList.add('active');
-      }
-
-      // Auth Functions
-      async function signUp() {
-        const email = document.getElementById("signup-email").value;
-        const password = document.getElementById("signup-password").value;
-        
-        if (!email || !password) {
-          showNotification("Bestie, fill in all fields! 💅", "error");
-          return;
-        }
-
-        if (password.length < 6) {
-          showNotification("Password needs at least 6 characters bestie! 🔒", "error");
-          return;
-        }
-
-        showAuthLoading(true);
-        
-        try {
-          await auth.createUserWithEmailAndPassword(email, password);
-          showNotification("Welcome to VibeSpend! Account created! ✨", "success");
-        } catch (error) {
-          console.error("Signup error:", error);
-          showNotification(`Signup failed: ${error.message} 😰`, "error");
-        } finally {
-          showAuthLoading(false);
-        }
-      }
-
-      async function logIn() {
-        const email = document.getElementById("login-email").value;
-        const password = document.getElementById("login-password").value;
-        
-        if (!email || !password) {
-          showNotification("Bestie, fill in all fields! 💅", "error");
-          return;
-        }
-
-        showAuthLoading(true);
-        
-        try {
-          await auth.signInWithEmailAndPassword(email, password);
-          showNotification("Welcome back bestie! Ready to track? 🔥", "success");
-        } catch (error) {
-          console.error("Login error:", error);
-          showNotification(`Login failed: ${error.message} 😰`, "error");
-        } finally {
-          showAuthLoading(false);
-        }
-      }
-
-      async function logOut() {
-        try {
-          await auth.signOut();
-          showNotification("Logged out! See you later bestie! 👋", "success");
-        } catch (error) {
-          console.error("Logout error:", error);
-          showNotification("Logout failed! Try again! 😰", "error");
-        }
-      }
-
-      function showAuthLoading(show) {
-        const loading = document.getElementById('auth-loading');
-        const forms = document.querySelectorAll('.auth-form');
-        
-        if (show) {
-          loading.style.display = 'block';
-          forms.forEach(form => form.style.display = 'none');
-        } else {
-          loading.style.display = 'none';
-          forms.forEach(form => form.style.display = 'block');
-        }
-      }
-
-      // Main App Class
-      class VibeSpendTracker {
-        constructor() {
-          this.upiExpenses = [];
-          this.cashExpenses = [];
-          this.currentSection = "dashboard";
-          this.vibeMessages = [
-            "That's some expensive taste! 💅",
-            "Money well spent bestie! ✨",
-            "Receipt added to the collection! 📝",
-            "Your bank account felt that one! 💸",
-            "Another one bites the dust! 🎵",
-            "That's what we call financial transparency! 👑",
-            "Keeping track like a boss! 🔥",
-            "Added to your spending saga! 📚"
-          ];
-          this.init();
-        }
-
-        async init() {
-          if (!currentUser) return;
-          
-          this.setupEventListeners();
-          this.setupNavigation();
-          await this.fetchFromFirestore();
-          this.render();
-          this.updateStats();
-          this.showWelcomeMessage();
-        }
-
-        setupEventListeners() {
-          document.getElementById("upi-form").addEventListener("submit", (e) => {
-            this.handleFormSubmit(e, "upi");
-          });
-          
-          document.getElementById("cash-form").addEventListener("submit", (e) => {
-            this.handleFormSubmit(e, "cash");
-          });
-
-          document.addEventListener("keydown", (e) => {
-            if (e.ctrlKey || e.metaKey) {
-              switch (e.key) {
-                case "1":
-                  e.preventDefault();
-                  this.showSection("dashboard");
-                  break;
-                case "2":
-                  e.preventDefault();
-                  this.showSection("upi");
-                  break;
-                case "3":
-                  e.preventDefault();
-                  this.showSection("cash");
-                  break;
-              }
-            }
-          });
-        }
-
-        setupNavigation() {
-          const navBtns = document.querySelectorAll(".nav-btn");
-          
-          navBtns.forEach((btn, index) => {
-            btn.addEventListener("click", () => {
-              const section = btn.dataset.section;
-              this.showSection(section);
-              this.updateNavIndicator(index);
-            });
-          });
-          
-          this.updateNavIndicator(0);
-        }
-
-        updateNavIndicator(index) {
-          const indicator = document.querySelector(".nav-indicator");
-          if (indicator) {
-            const btnWidth = document.querySelector(".nav-btn").offsetWidth;
-            const gap = 8;
-            indicator.style.left = `${(btnWidth + gap) * index + 8}px`;
-            indicator.style.width = `${btnWidth}px`;
-          }
-        }
-
-        showSection(section) {
-          document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.remove("active"));
-          document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
-          
-          const navBtn = document.querySelector(`[data-section="${section}"]`);
-          const sectionEl = document.getElementById(`${section}-section`);
-          
-          if (navBtn) navBtn.classList.add("active");
-          if (sectionEl) sectionEl.classList.add("active");
-          
-          this.currentSection = section;
-        }
-
-        async handleFormSubmit(e, type) {
-          e.preventDefault();
-
-          const submitBtn = document.getElementById(`${type}-submit`);
-          const originalText = submitBtn.innerHTML;
-
-          submitBtn.disabled = true;
-          submitBtn.innerHTML = '<div class="loading"></div> Adding the tea...';
-
-          const desc = document.getElementById(`${type}-desc`).value.trim();
-          const amount = parseFloat(document.getElementById(`${type}-amount`).value);
-          const category = document.getElementById(`${type}-category`).value;
-
-          if (!desc || !amount || amount <= 0 || !category) {
-            showNotification("Bestie, fill all the fields! No skipping! 💅", "error");
-            this.resetSubmitButton(submitBtn, originalText);
-            return;
-          }
-
-          if (amount > 100000) {
-            showNotification("Whoa! That's a lot of money! Are you sure? 🤯", "warning");
-            this.resetSubmitButton(submitBtn, originalText);
-            return;
-          }
-
-          if (desc.length < 3) {
-            showNotification("Give us more deets bestie! At least 3 characters! 📝", "error");
-            this.resetSubmitButton(submitBtn, originalText);
-            return;
-          }
-
-          const expense = {
-            id: Date.now() + Math.random(),
-            description: desc,
-            amount: Math.round(amount * 100) / 100,
-            category: category,
-            date: new Date().toISOString(),
-            type: type,
-            vibeScore: this.calculateVibeScore(amount, category)
-          };
-
-          if (type === "upi") {
-            this.upiExpenses.push(expense);
-          } else {
-            this.cashExpenses.push(expense);
-          }
-
-          try {
-            await this.saveData();
-            this.render();
-            this.updateStats();
-
-            document.getElementById(`${type}-form`).reset();
-
-            const randomMessage = this.vibeMessages[Math.floor(Math.random() * this.vibeMessages.length)];
-            showNotification(randomMessage, "success");
-
-          } catch (error) {
-            console.error("Error saving expense:", error);
-            showNotification("Oops! Couldn't save your data bestie! 😰", "error");
-          }
-
-          setTimeout(() => {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-          }, 800);
-        }
-
-        resetSubmitButton(btn, originalText) {
-          setTimeout(() => {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-          }, 500);
-        }
-
-        calculateVibeScore(amount, category) {
-          let score = 0;
-          if (category === "entertainment") score += 3;
-          if (category === "shopping") score += 2;
-          if (category === "food") score += 1;
-          if (amount > 1000) score += 2;
-          if (amount > 5000) score += 3;
-          return Math.min(score, 5);
-        }
-
-        async deleteExpense(type, id) {
-          const confirmation = confirm("Are you sure you want to delete this receipt? It'll be gone forever bestie! 💔");
-          if (!confirmation) return;
-
-          if (type === "upi") {
-            this.upiExpenses = this.upiExpenses.filter(exp => exp.id !== id);
-          } else {
-            this.cashExpenses = this.cashExpenses.filter(exp => exp.id !== id);
-          }
-
-          try {
-            await this.saveData();
-            this.render();
-            this.updateStats();
-            showNotification("Receipt deleted! It never happened! 🫥", "success");
-          } catch (error) {
-            console.error("Error deleting expense:", error);
-            showNotification("Couldn't delete that receipt bestie! Try again! 😰", "error");
-          }
-        }
-
-        async fetchFromFirestore() {
-          if (!currentUser) return;
-          
-          try {
-            const doc = await db.collection("users").doc(currentUser.uid).get();
-            if (doc.exists) {
-              const data = doc.data();
-              this.upiExpenses = data.upiExpenses || [];
-              this.cashExpenses = data.cashExpenses || [];
-            }
-          } catch (error) {
-            console.error("Error loading data:", error);
-            showNotification("Couldn't load your receipts bestie! 📶", "warning");
-          }
-        }
-
-        async saveData() {
-          if (!currentUser) return;
-          
-          try {
-            await db.collection("users").doc(currentUser.uid).set({
-              upiExpenses: this.upiExpenses,
-              cashExpenses: this.cashExpenses,
-              updatedAt: new Date().toISOString()
-            });
-          } catch (error) {
-            console.error("Error saving to Firebase:", error);
-            throw error;
-          }
-        }
-
-        render() {
-          this.renderExpenseList("upi", this.upiExpenses);
-          this.renderExpenseList("cash", this.cashExpenses);
-          this.renderDashboard();
-        }
-
-        renderExpenseList(type, expenses) {
-          const container = document.getElementById(`${type}-list`);
-          if (!container) return;
-
-          if (expenses.length === 0) {
-            const emptyMessages = {
-              upi: {
-                icon: "fas fa-mobile-alt",
-                title: "No UPI spends yet",
-                subtitle: "Time to add some digital receipts! Your phone is waiting 📱"
-              },
-              cash: {
-                icon: "fas fa-money-bill-wave",
-                title: "No cash spends yet", 
-                subtitle: "Old school money tracking! Add your cash receipts here 💵"
-              }
-            };
-
-            const msg = emptyMessages[type];
-            container.innerHTML = `
-              <div class="empty-state">
-                <i class="${msg.icon}"></i>
-                <h3>${msg.title}</h3>
-                <p>${msg.subtitle}</p>
-              </div>
-            `;
-            return;
-          }
-
-          const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-          container.innerHTML = sortedExpenses.map(expense => `
-            <div class="expense-item">
-              <div class="expense-details">
-                <div class="expense-desc">${this.escapeHtml(expense.description)} ${this.getVibeEmoji(expense.vibeScore)}</div>
-                <div class="expense-meta">
-                  <span class="category-pill">
-                    ${this.getCategoryEmoji(expense.category)} ${this.getCategoryName(expense.category)}
-                  </span>
-                  <span><i class="fas fa-clock"></i> ${this.formatDate(expense.date)}</span>
-                  <span><i class="fas fa-fire"></i> Vibe: ${expense.vibeScore}/5</span>
-                </div>
-              </div>
-              <div class="expense-actions">
-                <div class="expense-amount">₹${expense.amount.toFixed(2)}</div>
-                <button class="delete-btn" onclick="app.deleteExpense('${type}', ${expense.id})" title="Delete this receipt">
-                  <i class="fas fa-trash"></i>
+            <h3><i class="fas fa-download"></i> Export Your Data</h3>
+            <div class="export-buttons">
+                <button class="export-btn csv" onclick="exportData('csv')">
+                    <i class="fas fa-file-csv"></i> Export CSV
                 </button>
-              </div>
+                <button class="export-btn json" onclick="exportData('json')">
+                    <i class="fas fa-file-code"></i> Export JSON
+                </button>
+                <button class="export-btn clear" onclick="clearAllData()">
+                    <i class="fas fa-trash"></i> Clear All Data
+                </button>
             </div>
-          `).join("");
-        }
-
-        renderDashboard() {
-          const container = document.getElementById("recent-expenses");
-          if (!container) return;
-
-          const allExpenses = [...this.upiExpenses, ...this.cashExpenses]
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .slice(0, 15);
-
-          if (allExpenses.length === 0) {
-            container.innerHTML = `
-              <div class="empty-state">
-                <i class="fas fa-ghost"></i>
-                <h3>It's giving empty vibes</h3>
-                <p>No expenses yet bestie! Start tracking your bag to see the receipts here 💅</p>
-              </div>
-            `;
-            return;
-          }
-
-          container.innerHTML = allExpenses.map(expense => `
-            <div class="expense-item">
-              <div class="expense-details">
-                <div class="expense-desc">${this.escapeHtml(expense.description)} ${this.getVibeEmoji(expense.vibeScore)}</div>
-                <div class="expense-meta">
-                  <span class="category-pill">
-                    ${this.getCategoryEmoji(expense.category)} ${this.getCategoryName(expense.category)}
-                  </span>
-                  <span><i class="fas fa-clock"></i> ${this.formatDate(expense.date)}</span>
-                  <span><i class="fas fa-${expense.type === "upi" ? "mobile-alt" : "money-bill-wave"}"></i> ${expense.type.toUpperCase()}</span>
-                  <span><i class="fas fa-fire"></i> ${expense.vibeScore}/5</span>
-                </div>
-              </div>
-              <div class="expense-actions">
-                <div class="expense-amount">₹${expense.amount.toFixed(2)}</div>
-              </div>
-            </div>
-          `).join("");
-        }
-
-        updateStats() {
-          const upiTotal = this.upiExpenses.reduce((sum, exp) => sum + exp.amount, 0);
-          const cashTotal = this.cashExpenses.reduce((sum, exp) => sum + exp.amount, 0);
-          const totalExpenses = upiTotal + cashTotal;
-
-          const today = new Date().toDateString();
-          const todayExpenses = [...this.upiExpenses, ...this.cashExpenses]
-            .filter(exp => new Date(exp.date).toDateString() === today)
-            .reduce((sum, exp) => sum + exp.amount, 0);
-
-          this.animateValue("total-expenses", totalExpenses);
-          this.animateValue("upi-total", upiTotal);
-          this.animateValue("cash-total", cashTotal);  
-          this.animateValue("today-expenses", todayExpenses);
-        }
-
-        animateValue(elementId, targetValue) {
-          const element = document.getElementById(elementId);
-          if (!element) return;
-
-          const startValue = 0;
-          const duration = 1000;
-          const startTime = performance.now();
-
-          const animate = (currentTime) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const currentValue = startValue + (targetValue - startValue) * progress;
-
-            element.textContent = `₹${currentValue.toFixed(2)}`;
-
-            if (progress < 1) {
-              requestAnimationFrame(animate);
-            }
-          };
-
-          requestAnimationFrame(animate);
-        }
-
-        getCategoryName(category) {
-          const categories = {
-            food: "Food Vibes",
-            transport: "Getting Around", 
-            shopping: "Retail Therapy",
-            entertainment: "Fun Times",
-            utilities: "Adult Stuff",
-            healthcare: "Self Care",
-            education: "Brain Food",
-            other: "Random Stuff"
-          };
-          return categories[category] || category;
-        }
-
-        getCategoryEmoji(category) {
-          const emojis = {
-            food: "🍽️",
-            transport: "🚗",
-            shopping: "🛍️", 
-            entertainment: "🎬",
-            utilities: "⚡",
-            healthcare: "🏥",
-            education: "📚",
-            other: "📋"
-          };
-          return emojis[category] || "📋";
-        }
-
-        getVibeEmoji(score) {
-          const emojis = ["😴", "😊", "😍", "🔥", "💎"];
-          return emojis[Math.min(score, 4)] || "😴";
-        }
-
-        formatDate(dateString) {
-          const date = new Date(dateString);
-          const now = new Date();
-          const diffInHours = Math.abs(now - date) / 36e5;
-
-          if (diffInHours < 1) {
-            return "Just now bestie! ⏰";
-          } else if (diffInHours < 24) {
-            const hours = Math.floor(diffInHours);
-            return `${hours}h ago`;
-          } else if (diffInHours < 48) {
-            return "Yesterday";
-          } else if (diffInHours < 168) {
-            const days = Math.floor(diffInHours / 24);
-            return `${days}d ago`;
-          } else {
-            return date.toLocaleDateString("en-IN", {
-              day: "numeric",
-              month: "short"
-            });
-          }
-        }
-
-        escapeHtml(text) {
-          const div = document.createElement("div");
-          div.textContent = text;
-          return div.innerHTML;
-        }
-
-        showWelcomeMessage() {
-          if (this.upiExpenses.length === 0 && this.cashExpenses.length === 0) {
-            setTimeout(() => {
-              showNotification("Welcome to VibeSpend! Ready to track your bag? 💸✨", "success");
-            }, 1000);
-          }
-        }
-
-        exportData(format) {
-          try {
-            const allExpenses = [...this.upiExpenses, ...this.cashExpenses]
-              .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            if (allExpenses.length === 0) {
-              showNotification("No data to export bestie! Add some receipts first! 📝", "error");
-              return;
-            }
-
-            if (format === "csv") {
-              this.exportCSV(allExpenses);
-            } else if (format === "json") {
-              this.exportJSON({
-                upiExpenses: this.upiExpenses,
-                cashExpenses: this.cashExpenses,
-                exportDate: new Date().toISOString(),
-                totalExpenses: allExpenses.length,
-                appVersion: "VibeSpend v2.0"
-              });
-            }
-
-            showNotification("Data exported! Your financial tea is served! ☕", "success");
-          } catch (error) {
-            console.error("Export error:", error);
-            showNotification("Export failed bestie! Try again! 😰", "error");
-          }
-        }
-
-        exportCSV(expenses) {
-          const headers = ["Date", "Type", "Description", "Category", "Amount", "Vibe Score"];
-          const csvContent = [
-            headers.join(","),
-            ...expenses.map(exp => [
-              new Date(exp.date).toLocaleDateString("en-IN"),
-              exp.type.toUpperCase(),
-              `"${exp.description.replace(/"/g, '""')}"`,
-              this.getCategoryName(exp.category),
-              exp.amount.toFixed(2),
-              exp.vibeScore || 0
-            ].join(","))
-          ].join("\n");
-
-          this.downloadFile(csvContent, "vibesend-expenses.csv", "text/csv");
-        }
-
-        exportJSON(data) {
-          const jsonContent = JSON.stringify(data, null, 2);
-          this.downloadFile(jsonContent, "vibesend-expenses.json", "application/json");
-        }
-
-        downloadFile(content, filename, contentType) {
-          const blob = new Blob([content], { type: contentType });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = filename;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        }
-
-        async clearAllData() {
-          const confirmation = prompt('Type "DELETE MY VIBES" to confirm clearing all data (this is permanent bestie!):');
-          if (confirmation !== "DELETE MY VIBES") {
-            showNotification("Data clear cancelled! Your receipts are safe! 🛡️", "warning");
-            return;
-          }
-
-          this.upiExpenses = [];
-          this.cashExpenses = [];
-          
-          try {
-            await this.saveData();
-            this.render();
-            this.updateStats();
-            showNotification("All data cleared! Fresh start bestie! ✨", "success");
-          } catch (error) {
-            console.error("Error clearing data:", error);
-            showNotification("Couldn't clear all data bestie! Try again! 😰", "error");
-          }
-        }
-      }
-
-      // Global functions
-      function exportData(format) {
-        if (window.app) {
-          window.app.exportData(format);
-        }
-      }
-
-      function clearAllData() {
-        if (window.app) {
-          window.app.clearAllData();
-        }
-      }
-
-      function toggleVibes() {
-        document.body.style.filter = "hue-rotate(60deg)";
-        setTimeout(() => {
-          document.body.style.filter = "hue-rotate(0deg)";
-        }, 300);
-
-        if (window.app) {
-          showNotification("Vibes switched! ✨", "success");
-        }
-      }
-
-      function quickAdd() {
-        if (!window.app) return;
-        
-        const currentSection = window.app.currentSection;
-        if (currentSection === "upi") {
-          document.getElementById("upi-desc")?.focus();
-        } else if (currentSection === "cash") {
-          document.getElementById("cash-desc")?.focus();
-        } else {
-          window.app.showSection("upi");
-          setTimeout(() => {
-            document.getElementById("upi-desc")?.focus();
-          }, 300);
-        }
-
-        showNotification("Ready to add some receipts! 📝", "success");
-      }
-
-      // Global notification function
-      function showNotification(message, type = "success") {
-        const notification = document.getElementById("notification");
-        const textElement = document.getElementById("notification-text");
-
-        if (notification && textElement) {
-          textElement.textContent = message;
-          notification.className = `notification ${type} show`;
-
-          setTimeout(() => {
-            notification.classList.remove("show");
-          }, 4000);
-        } else {
-          alert(message);
-        }
-      }
-
-      // Add ripple effect
-      document.addEventListener("click", (e) => {
-        if (e.target.classList.contains("submit-btn") || e.target.classList.contains("nav-btn")) {
-          const ripple = document.createElement("div");
-          ripple.style.position = "absolute";
-          ripple.style.borderRadius = "50%";
-          ripple.style.background = "rgba(255,255,255,0.6)";
-          ripple.style.transform = "scale(0)";
-          ripple.style.animation = "ripple 0.6s linear";
-          ripple.style.left = e.offsetX - 10 + "px";
-          ripple.style.top = e.offsetY - 10 + "px";
-          ripple.style.width = "20px";
-          ripple.style.height = "20px";
-          ripple.style.pointerEvents = "none";
-
-          e.target.style.position = "relative";
-          e.target.appendChild(ripple);
-
-          setTimeout(() => {
-            ripple.remove();
-          }, 600);
-        }
-      });
-
-      // Add ripple animation CSS
-      const style = document.createElement("style");
-      style.textContent = `
-        /* Auth Styles */
-        .auth-container {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 9999;
-        }
-
-        .auth-box {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(10px);
-          padding: 40px;
-          border-radius: 20px;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-          min-width: 400px;
-          text-align: center;
-        }
-
-        .auth-box h2 {
-          margin-bottom: 10px;
-          color: #6366f1;
-          font-size: 28px;
-        }
-
-        .auth-box p {
-          margin-bottom: 30px;
-          color: #6b7280;
-        }
-
-        .auth-tabs {
-          display: flex;
-          margin-bottom: 30px;
-          background: #f3f4f6;
-          border-radius: 10px;
-          padding: 4px;
-        }
-
-        .auth-tab {
-          flex: 1;
-          padding: 12px;
-          border: none;
-          background: none;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          font-family: inherit;
-          font-weight: 500;
-        }
-
-        .auth-tab.active {
-          background: white;
-          color: #6366f1;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .auth-form {
-          display: none;
-        }
-
-        .auth-form.active {
-          display: block;
-        }
-
-        .auth-form input {
-          width: 100%;
-          padding: 15px;
-          margin: 10px 0;
-          border: 2px solid #e5e7eb;
-          border-radius: 10px;
-          font-family: inherit;
-          font-size: 16px;
-          transition: all 0.3s ease;
-        }
-
-        .auth-form input:focus {
-          outline: none;
-          border-color: #6366f1;
-          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        .auth-btn {
-          width: 100%;
-          padding: 15px;
-          background: linear-gradient(135deg, #6366f1, #ec4899);
-          color: white;
-          border: none;
-          border-radius: 10px;
-          font-family: inherit;
-          font-size: 16px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          margin-top: 10px;
-        }
-
-        .auth-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
-        }
-
-        .auth-loading {
-          text-align: center;
-          padding: 20px;
-        }
-
-        .loading-spinner {
-          width: 40px;
-          height: 40px;
-          border: 4px solid #f3f4f6;
-          border-top: 4px solid #6366f1;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin: 0 auto 15px;
-        }
-
-        /* User Info Styles */
-        .user-info {
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(10px);
-          padding: 15px 20px;
-          border-radius: 25px;
-          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-          z-index: 1000;
-          display: flex;
-          align-items: center;
-          gap: 15px;
-        }
-
-        .logout-btn {
-          background: #ef4444;
-          color: white;
-          border: none;
-          padding: 8px 15px;
-          border-radius: 20px;
-          cursor: pointer;
-          font-family: inherit;
-          font-weight: 500;
-          transition: all 0.3s ease;
-        }
-
-        .logout-btn:hover {
-          background: #dc2626;
-          transform: translateY(-2px);
-        }
-
-        /* Loading Animation */
-        .loading {
-          width: 20px;
-          height: 20px;
-          border: 2px solid transparent;
-          border-top: 2px solid white;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          display: inline-block;
-          margin-right: 10px;
-        }
-
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
-        @keyframes ripple {
-          to {
-            transform: scale(4);
-            opacity: 0;
-          }
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-          .auth-box {
-            min-width: 90%;
-            padding: 30px 20px;
-          }
-
-          .user-info {
-            position: relative;
-            top: 0;
-            right: 0;
-            margin-bottom: 20px;
-            justify-content: center;
-          }
-        }
-      `;
-      document.head.appendChild(style);
-    </script>
-  </body>
+        </div>
+
+        <!-- Floating Action Button -->
+        <button class="fab" onclick="quickAdd()" title="Quick add expense">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" onclick="toggleVibes()" title="Toggle theme">
+            <i class="fas fa-palette"></i>
+        </button>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text"></span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
 </html>
