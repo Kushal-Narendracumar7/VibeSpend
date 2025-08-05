@@ -1,5 +1,4 @@
- // Firebase Configuration
-        const firebaseConfig = {
+const firebaseConfig = {
             apiKey: "AIzaSyAsc5oI 9fiLD3xfOS7fh7V_NvGJ-VCsans",
             authDomain: "vibespend-603c6.firebaseapp.com",
             projectId: "vibespend-603c6",
@@ -136,11 +135,11 @@
                 this.cashExpenses = [];
                 this.currentSection = "dashboard";
                 this.successMessages = [
-                    "Expense added successfully! 💸",
+                    "Expense added successfully! ✨",
                     "Another one tracked! 📝",
-                    "Your spending is now recorded! ✨",
+                    "Your spending is now recorded! 🎯",
                     "Added to your expense log! 📊",
-                    "Financial tracking on point! 🎯"
+                    "Financial tracking on point! 💫"
                 ];
                 this.init();
             }
@@ -188,25 +187,12 @@
             setupNavigation() {
                 const navBtns = document.querySelectorAll(".nav-btn");
                 
-                navBtns.forEach((btn, index) => {
+                navBtns.forEach((btn) => {
                     btn.addEventListener("click", () => {
                         const section = btn.dataset.section;
                         this.showSection(section);
-                        this.updateNavIndicator(index);
                     });
                 });
-                
-                this.updateNavIndicator(0);
-            }
-
-            updateNavIndicator(index) {
-                const indicator = document.querySelector(".nav-indicator");
-                if (indicator) {
-                    const btnWidth = document.querySelector(".nav-btn").offsetWidth;
-                    const gap = 8;
-                    indicator.style.left = `${(btnWidth + gap) * index + 8}px`;
-                    indicator.style.width = `${btnWidth}px`;
-                }
             }
 
             showSection(section) {
@@ -229,7 +215,7 @@
                 const originalText = submitBtn.innerHTML;
 
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<div class="loading"></div> Adding...';
+                submitBtn.innerHTML = '<div class="loading-spinner" style="width: 20px; height: 20px; margin-right: 8px; display: inline-block;"></div> Adding...';
 
                 const desc = document.getElementById(`${type}-desc`).value.trim();
                 const amount = parseFloat(document.getElementById(`${type}-amount`).value);
@@ -373,7 +359,7 @@
                     const emptyMessages = {
                         upi: {
                             icon: "fas fa-mobile-alt",
-                            title: "No UPI payments yet",
+                            title: "No digital payments yet",
                             subtitle: "Add your first digital payment above to start tracking your UPI expenses!"
                         },
                         cash: {
@@ -401,11 +387,15 @@
                         <div class="expense-details">
                             <div class="expense-desc">${this.escapeHtml(expense.description)} ${this.getVibeEmoji(expense.vibeScore)}</div>
                             <div class="expense-meta">
-                                <span>
+                                <span class="expense-tag">
                                     ${this.getCategoryEmoji(expense.category)} ${this.getCategoryName(expense.category)}
                                 </span>
-                                <span><i class="fas fa-clock"></i> ${this.formatDate(expense.date)}</span>
-                                <span><i class="fas fa-fire"></i> Vibe: ${expense.vibeScore}/5</span>
+                                <span class="expense-tag">
+                                    <i class="fas fa-clock"></i> ${this.formatDate(expense.date)}
+                                </span>
+                                <span class="expense-tag">
+                                    <i class="fas fa-fire"></i> Vibe: ${expense.vibeScore}/5
+                                </span>
                             </div>
                         </div>
                         <div class="expense-actions">
@@ -429,85 +419,69 @@
                 if (allExpenses.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
-                            <i class="fas fa-ghost"></i>
+                            <i class="fas fa-receipt"></i>
                             <h3>No expenses yet!</h3>
-                            <p>Start tracking your expenses to see them here. Add your first expense using the navigation above!</p>
+                            <p>Start tracking your expenses to see them here. Your financial journey begins now!</p>
                         </div>
                     `;
-                    return;
+                                        return;
                 }
 
-                container.innerHTML = allExpenses.map(expense => `
+                container.innerHTML = allExpenses.map(exp => `
                     <div class="expense-item">
                         <div class="expense-details">
-                            <div class="expense-desc">${this.escapeHtml(expense.description)} ${this.getVibeEmoji(expense.vibeScore)}</div>
+                            <div class="expense-desc">${this.escapeHtml(exp.description)} ${this.getVibeEmoji(exp.vibeScore)}</div>
                             <div class="expense-meta">
-                                <span>
-                                    ${this.getCategoryEmoji(expense.category)} ${this.getCategoryName(expense.category)}
+                                <span class="expense-tag">
+                                    ${this.getCategoryEmoji(exp.category)} ${this.getCategoryName(exp.category)}
                                 </span>
-                                <span><i class="fas fa-clock"></i> ${this.formatDate(expense.date)}</span>
-                                <span><i class="fas fa-${expense.type === "upi" ? "mobile-alt" : "money-bill-wave"}"></i> ${expense.type.toUpperCase()}</span>
-                                <span><i class="fas fa-fire"></i> ${expense.vibeScore}/5</span>
+                                <span class="expense-tag">
+                                    <i class="fas fa-clock"></i> ${this.formatDate(exp.date)}
+                                </span>
+                                <span class="expense-tag">
+                                    <i class="fas fa-fire"></i> Vibe: ${exp.vibeScore}/5
+                                </span>
                             </div>
                         </div>
                         <div class="expense-actions">
-                            <div class="expense-amount">₹${expense.amount.toFixed(2)}</div>
+                            <div class="expense-amount">₹${exp.amount.toFixed(2)}</div>
                         </div>
                     </div>
-                `).join("");
+                `).join('');
             }
 
             updateStats() {
-                const upiTotal = this.upiExpenses.reduce((sum, exp) => sum + exp.amount, 0);
-                const cashTotal = this.cashExpenses.reduce((sum, exp) => sum + exp.amount, 0);
-                const totalExpenses = upiTotal + cashTotal;
+                const total = [...this.upiExpenses, ...this.cashExpenses].reduce((sum, exp) => sum + exp.amount, 0);
+                const upi = this.upiExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+                const cash = this.cashExpenses.reduce((sum, exp) => sum + exp.amount, 0);
 
-                const today = new Date().toDateString();
-                const todayExpenses = [...this.upiExpenses, ...this.cashExpenses]
-                    .filter(exp => new Date(exp.date).toDateString() === today)
+                const today = new Date().toISOString().slice(0, 10);
+                const todayTotal = [...this.upiExpenses, ...this.cashExpenses]
+                    .filter(exp => exp.date.slice(0, 10) === today)
                     .reduce((sum, exp) => sum + exp.amount, 0);
 
-                this.animateValue("total-expenses", totalExpenses);
-                this.animateValue("upi-total", upiTotal);
-                this.animateValue("cash-total", cashTotal);  
-                this.animateValue("today-expenses", todayExpenses);
+                document.getElementById("total-expenses").textContent = `₹${total.toFixed(2)}`;
+                document.getElementById("upi-total").textContent = `₹${upi.toFixed(2)}`;
+                document.getElementById("cash-total").textContent = `₹${cash.toFixed(2)}`;
+                document.getElementById("today-expenses").textContent = `₹${todayTotal.toFixed(2)}`;
             }
 
-            animateValue(elementId, targetValue) {
-                const element = document.getElementById(elementId);
-                if (!element) return;
-
-                const startValue = 0;
-                const duration = 1000;
-                const startTime = performance.now();
-
-                const animate = (currentTime) => {
-                    const elapsed = currentTime - startTime;
-                    const progress = Math.min(elapsed / duration, 1);
-                    const currentValue = startValue + (targetValue - startValue) * progress;
-
-                    element.textContent = `₹${currentValue.toFixed(2)}`;
-
-                    if (progress < 1) {
-                        requestAnimationFrame(animate);
-                    }
-                };
-
-                requestAnimationFrame(animate);
+            showWelcomeMessage() {
+                const welcomeMessages = [
+                    "Welcome back, spender! 💸",
+                    "Let's vibe and spend smart! ✨",
+                    "Ready to track some money? 💰",
+                    "Your financial journey continues! 🚀",
+                    "Stay stylish and budget-wise! 👛"
+                ];
+                const msg = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
+                showNotification(msg, "success");
             }
 
-            getCategoryName(category) {
-                const categories = {
-                    food: "Food & Dining",
-                    transport: "Transportation", 
-                    shopping: "Shopping",
-                    entertainment: "Entertainment",
-                    utilities: "Bills & Utilities",
-                    healthcare: "Healthcare",
-                    education: "Education",                   
-                    other: "Other"
-                };
-                return categories[category] || category;
+            // Utility methods
+            formatDate(dateString) {
+                const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                return new Date(dateString).toLocaleString(undefined, options);
             }
 
             getCategoryEmoji(category) {
@@ -521,120 +495,67 @@
                     education: "📚",
                     other: "📋"
                 };
-                return emojis[category] || "💸";
+                return emojis[category] || "📦";
+            }
+
+            getCategoryName(category) {
+                const names = {
+                    food: "Food & Dining",
+                    transport: "Transportation",
+                    shopping: "Shopping",
+                    entertainment: "Entertainment",
+                    utilities: "Bills & Utilities",
+                    healthcare: "Healthcare",
+                    education: "Education",
+                    other: "Other"
+                };
+                return names[category] || "Unknown";
             }
 
             getVibeEmoji(score) {
-                const vibes = ["😐", "🙂", "😎", "🔥", "💥", "🚀"];
-                return vibes[score] || "💸";
+                if (score >= 5) return "🔥";
+                if (score >= 4) return "😎";
+                if (score >= 3) return "😊";
+                if (score >= 2) return "🙂";
+                return "💤";
             }
 
-            formatDate(dateStr) {
-                const date = new Date(dateStr);
-                return date.toLocaleString("en-IN", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit"
-                });
-            }
-
-            escapeHtml(text) {
-                const map = {
-                    "&": "&amp;",
-                    "<": "&lt;",
-                    ">": "&gt;",
-                    '"': "&quot;",
-                    "'": "&#039;"
-                };
-                return text.replace(/[&<>"']/g, m => map[m]);
-            }
-
-            showWelcomeMessage() {
-                const hours = new Date().getHours();
-                let message = "Welcome!";
-                if (hours < 12) message = "Good morning!";
-                else if (hours < 18) message = "Good afternoon!";
-                else message = "Good evening!";
-                showNotification(`${message} Let's track some expenses!`, "success");
+            escapeHtml(str) {
+                return str.replace(/[&<>'"]/g, tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag]));
             }
         }
 
-        // Global Helper
+        // Global Notification Function
         function showNotification(message, type = "success") {
             const notification = document.getElementById("notification");
             const text = document.getElementById("notification-text");
+            const icon = notification.querySelector(".notification-icon");
 
-            notification.className = `notification show ${type}`;
             text.textContent = message;
+            notification.className = `notification show ${type}`;
+
+            icon.className = `fas notification-icon ${
+                type === "success" ? "fa-check-circle" :
+                type === "error" ? "fa-times-circle" :
+                "fa-exclamation-circle"
+            }`;
 
             setTimeout(() => {
                 notification.classList.remove("show");
-            }, 3500);
+            }, 4000);
         }
 
-        function toggleVibes() {
-            document.body.classList.toggle("dark-theme");
-            showNotification("Theme toggled! ✨", "success");
-        }
-
+        // Quick Add (FAB)
         function quickAdd() {
-            const current = app?.currentSection || "dashboard";
-            const next = current === "dashboard" ? "upi" : current === "upi" ? "cash" : "dashboard";
-            app?.showSection(next);
-            showNotification("Switched section for quick entry!", "success");
+            if (!app) return;
+            app.showSection(app.currentSection === "upi" ? "cash" : "upi");
         }
 
-        function exportData(format) {
-            const data = {
-                upiExpenses: app?.upiExpenses || [],
-                cashExpenses: app?.cashExpenses || []
-            };
-
-            const blob = new Blob([
-                format === "csv" ? toCSV(data) : JSON.stringify(data, null, 2)
-            ], {
-                type: format === "csv" ? "text/csv" : "application/json"
-            });
-
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `vibespend_data.${format}`;
-            a.click();
-            URL.revokeObjectURL(url);
-
-            showNotification(`Data exported as ${format.toUpperCase()}! 📦`, "success");
-        }
-
-        function toCSV({ upiExpenses, cashExpenses }) {
-            const all = [...upiExpenses, ...cashExpenses];
-            const headers = ["type", "description", "amount", "category", "date", "vibeScore"];
-            const rows = all.map(e => [
-                e.type, `"${e.description.replace(/"/g, '""')}"`, e.amount, e.category, e.date, e.vibeScore
-            ]);
-            return [headers, ...rows].map(row => row.join(",")).join("\n");
-        }
-
-        async function clearAllData() {
-            const confirmClear = confirm("This will delete all your expenses. Are you sure?");
-            if (!confirmClear) return;
-
-            try {
-                await db.collection("users").doc(currentUser.uid).set({
-                    upiExpenses: [],
-                    cashExpenses: [],
-                    updatedAt: new Date().toISOString()
-                });
-
-                app.upiExpenses = [];
-                app.cashExpenses = [];
-                app.render();
-                app.updateStats();
-                showNotification("All data cleared!", "success");
-            } catch (error) {
-                console.error("Failed to clear data:", error);
-                showNotification("Failed to clear data!", "error");
-            }
-        }
+        // Expose to window
+        let app = null;

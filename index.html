@@ -3,128 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💸 VibeSpend - Track Your Expenses</title>
+    <title>✨ VibeSpend - Smart Expense Tracking</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <link rel="stylesheet" href="style.css">
+    >
 </head>
 <body>
-    <!-- Auth Screen -->
+    <div class="bg-animated"></div>
+
+    <!-- Auth Container -->
     <div class="auth-container" id="auth-container">
-        <div class="auth-box">
-            <h2>💸 Welcome to VibeSpend 💸</h2>
-            <p>Sign up or log in to track your financial vibes!</p>
-            
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>✨ VibeSpend</h1>
+                <p>Smart expense tracking made beautiful</p>
+            </div>
+
             <div class="auth-tabs">
-                <button class="auth-tab active" onclick="showAuthTab('login')">Log In</button>
+                <button class="auth-tab active" onclick="showAuthTab('login')">Sign In</button>
                 <button class="auth-tab" onclick="showAuthTab('signup')">Sign Up</button>
             </div>
 
             <!-- Login Form -->
             <div id="login-form" class="auth-form active">
-                <input type="email" id="login-email" placeholder="Enter your email" required>
-                <input type="password" id="login-password" placeholder="Enter your password" required>
+                <div class="form-group">
+                    <input type="email" id="login-email" class="form-input" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required>
+                </div>
                 <button onclick="logIn()" class="auth-btn">
-                    <i class="fas fa-sign-in-alt"></i> Log In
+                    <i class="fas fa-sign-in-alt"></i> Sign In
                 </button>
             </div>
 
             <!-- Signup Form -->
             <div id="signup-form" class="auth-form">
-                <input type="email" id="signup-email" placeholder="Enter your email" required>
-                <input type="password" id="signup-password" placeholder="Password (min 6 chars)" required>
+                <div class="form-group">
+                    <input type="email" id="signup-email" class="form-input" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="signup-password" class="form-input" placeholder="Password (min 6 chars)" required>
+                </div>
                 <button onclick="signUp()" class="auth-btn">
-                    <i class="fas fa-user-plus"></i> Sign Up
+                    <i class="fas fa-user-plus"></i> Create Account
                 </button>
             </div>
 
-            <div class="auth-loading" id="auth-loading" style="display: none;">
+            <div class="auth-loading" id="auth-loading">
                 <div class="loading-spinner"></div>
-                <p>Getting your vibes ready...</p>
+                <p>Setting up your account...</p>
             </div>
         </div>
     </div>
 
-    <!-- Main App -->
-    <div class="app-container" id="app-container" style="display: none;">
-        <!-- User Info -->
-        <div class="user-info">
-            <span id="user-email"></span>
-            <button onclick="logOut()" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Log Out
-            </button>
-        </div>
-
+    <!-- App Container -->
+    <div class="app-container" id="app-container">
         <!-- Header -->
-        <header class="header">
-            <div class="logo">
-                <h1>💸 VibeSpend 💸</h1>
-                <p>Track your expenses like a boss! 🔥</p>
+        <header class="app-header">
+            <div class="header-content">
+                <div>
+                    <h1 class="header-title">✨ VibeSpend</h1>
+                    <p class="header-subtitle">Track your expenses with style</p>
+                </div>
+                <div class="user-info">
+                    <span class="user-email" id="user-email"></span>
+                    <button onclick="logOut()" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
             </div>
         </header>
-
-        <!-- Navigation -->
-        <div class="nav-container">
-            <nav class="nav-tabs">
-                <div class="nav-indicator"></div>
-                <button class="nav-btn active" data-section="dashboard">
-                    <i class="fas fa-fire"></i> Dashboard
-                </button>
-                <button class="nav-btn" data-section="upi">
-                    <i class="fas fa-mobile-alt"></i> UPI Payments
-                </button>
-                <button class="nav-btn" data-section="cash">
-                    <i class="fas fa-money-bill-wave"></i> Cash Expenses
-                </button>
-            </nav>
-        </div>
 
         <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                <div class="stat-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
                 <div class="stat-value" id="total-expenses">₹0.00</div>
                 <div class="stat-label">Total Spent</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-mobile-alt"></i></div>
+                <div class="stat-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
                 <div class="stat-value" id="upi-total">₹0.00</div>
                 <div class="stat-label">Digital Payments</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                <div class="stat-icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
                 <div class="stat-value" id="cash-total">₹0.00</div>
                 <div class="stat-label">Cash Expenses</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
                 <div class="stat-value" id="today-expenses">₹0.00</div>
                 <div class="stat-label">Today's Spending</div>
             </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-container">
+            <nav class="nav-tabs">
+                <button class="nav-btn active" data-section="dashboard">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </button>
+                <button class="nav-btn" data-section="upi">
+                    <i class="fas fa-mobile-alt"></i> Digital Pay
+                </button>
+                <button class="nav-btn" data-section="cash">
+                    <i class="fas fa-money-bill-wave"></i> Cash
+                </button>
+            </nav>
         </div>
 
         <!-- Main Content -->
         <main class="main-content">
             <!-- Dashboard Section -->
             <section id="dashboard-section" class="section active">
-                <h2><i class="fas fa-fire"></i> Recent Expenses</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-chart-line"></i> Recent Expenses
+                </h2>
                 <div class="expense-list" id="recent-expenses">
                     <div class="empty-state">
-                        <i class="fas fa-ghost"></i>
+                        <i class="fas fa-receipt"></i>
                         <h3>No expenses yet!</h3>
-                        <p>Start tracking your expenses to see them here. Add your first expense using the navigation above!</p>
+                        <p>Start tracking your expenses to see them here. Your financial journey begins now!</p>
                     </div>
                 </div>
             </section>
 
             <!-- UPI Section -->
             <section id="upi-section" class="section">
-                <h2><i class="fas fa-mobile-alt"></i> UPI Payments</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-mobile-alt"></i> Digital Payments
+                </h2>
                 <form class="expense-form" id="upi-form">
                     <div class="form-grid">
                         <div class="form-group">
@@ -151,13 +174,13 @@
                         </div>
                     </div>
                     <button type="submit" class="submit-btn" id="upi-submit">
-                        <i class="fas fa-plus"></i> Add UPI Expense
+                        <i class="fas fa-plus"></i> Add Digital Payment
                     </button>
                 </form>
                 <div class="expense-list" id="upi-list">
                     <div class="empty-state">
                         <i class="fas fa-mobile-alt"></i>
-                        <h3>No UPI payments yet</h3>
+                        <h3>No digital payments yet</h3>
                         <p>Add your first digital payment above to start tracking your UPI expenses!</p>
                     </div>
                 </div>
@@ -165,7 +188,9 @@
 
             <!-- Cash Section -->
             <section id="cash-section" class="section">
-                <h2><i class="fas fa-money-bill-wave"></i> Cash Expenses</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-money-bill-wave"></i> Cash Expenses
+                </h2>
                 <form class="expense-form" id="cash-form">
                     <div class="form-grid">
                         <div class="form-group">
@@ -207,7 +232,9 @@
 
         <!-- Export Section -->
         <div class="export-section">
-            <h3><i class="fas fa-download"></i> Export Your Data</h3>
+            <h3 class="export-title">
+                <i class="fas fa-download"></i> Export Your Data
+            </h3>
             <div class="export-buttons">
                 <button class="export-btn csv" onclick="exportData('csv')">
                     <i class="fas fa-file-csv"></i> Export CSV
@@ -225,19 +252,16 @@
         <button class="fab" onclick="quickAdd()" title="Quick add expense">
             <i class="fas fa-plus"></i>
         </button>
-
-        <!-- Theme Toggle -->
-        <button class="theme-toggle" onclick="toggleVibes()" title="Toggle theme">
-            <i class="fas fa-palette"></i>
-        </button>
     </div>
 
     <!-- Notification -->
     <div class="notification" id="notification">
-        <i class="fas fa-check-circle"></i>
+        <i class="fas fa-check-circle notification-icon"></i>
         <span id="notification-text"></span>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js">
+        
+    </script>
 </body>
 </html>
