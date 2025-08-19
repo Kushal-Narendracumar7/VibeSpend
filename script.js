@@ -6,6 +6,8 @@ const firebaseConfig = {
             messagingSenderId: "175106283508",
             appId: "1:175106283508:web:799f6ebd8c1c06f0314ba1"
         };
+		
+		
 
         // Initialize Firebase
         if (!firebase.apps?.length) {
@@ -15,6 +17,9 @@ const firebaseConfig = {
         const auth = firebase.auth();
         const db = firebase.firestore();
         let currentUser = null;
+        let theme = localStorage.getItem('vs_theme') || 'dark';
+        // Apply saved theme ASAP (affects auth screen too)
+        (function ensureTheme() { try { document.documentElement.setAttribute('data-theme', theme); } catch (e) {} })();
 
         // Auth State Management
         auth.onAuthStateChanged((user) => {
@@ -23,9 +28,11 @@ const firebaseConfig = {
                 showApp();
                 if (window.app) {
                     window.app.init();
+                    try { app = window.app; } catch (_) {}
                 } else {
                     setTimeout(() => {
                         window.app = new VibeSpendTracker();
+                        try { app = window.app; } catch (_) {}
                     }, 100);
                 }
             } else {
@@ -44,6 +51,8 @@ const firebaseConfig = {
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('app-container').style.display = 'block';
             document.getElementById('user-email').textContent = currentUser?.email || '';
+            applyTheme(theme);
+            setupThemeToggle();
         }
 
         // Auth Tab Switching
@@ -54,6 +63,58 @@ const firebaseConfig = {
             document.querySelector(`[onclick="showAuthTab('${tab}')"]`).classList.add('active');
             document.getElementById(`${tab}-form`).classList.add('active');
         }
+
+        function setupThemeToggle() {
+            const btn = document.getElementById('theme-toggle');
+            if (!btn) return;
+            updateThemeIcon(btn);
+            btn.onclick = () => {
+                theme = theme === 'light' ? 'dark' : 'light';
+                localStorage.setItem('vs_theme', theme);
+                applyTheme(theme);
+                updateThemeIcon(btn);
+            };
+        }
+
+        function applyTheme(value) {
+            const html = document.documentElement;
+            html.setAttribute('data-theme', value);
+        }
+
+        function updateThemeIcon(btn) {
+            btn.innerHTML = theme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        }
+
+        // Parallax effect based on cursor and scroll
+        (function setupParallax() {
+            let lastX = 0, lastY = 0;
+            let rafId = null;
+            const layers = Array.from(document.querySelectorAll('.parallax'));
+            if (!layers.length) return;
+            function animate() {
+                layers.forEach(layer => {
+                    const speed = parseFloat(layer.dataset.speed || '0.05');
+                    const tx = (lastX - window.innerWidth / 2) * speed;
+                    const ty = (lastY - window.innerHeight / 2) * speed;
+                    layer.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+                });
+                rafId = null;
+            }
+            function onMove(e) {
+                lastX = e.clientX ?? lastX;
+                lastY = e.clientY ?? lastY;
+                if (!rafId) rafId = requestAnimationFrame(animate);
+            }
+            function onScroll() {
+                const y = window.scrollY || 0;
+                layers.forEach(layer => {
+                    const speed = parseFloat(layer.dataset.speed || '0.05');
+                    layer.style.transform = `translate3d(0, ${y * speed * 0.3}px, 0)`;
+                });
+            }
+            window.addEventListener('mousemove', onMove, { passive: true });
+            window.addEventListener('scroll', onScroll, { passive: true });
+        })();
 
         // Auth Functions
         async function signUp() {
@@ -551,10 +612,76 @@ const firebaseConfig = {
             }, 4000);
         }
 
+        // Data Export
+        function exportData(format) {
+            try {
+                if (!window.app) {
+                    showNotification("App is not ready yet.", "warning");
+                    return;
+                }
+                const allExpenses = [...window.app.upiExpenses, ...window.app.cashExpenses]
+                    .sort((a, b) => new Date(a.date) - new Date(b.date));
+                if (allExpenses.length === 0) {
+                    showNotification("No data to export.", "warning");
+                    return;
+                }
+                let blob; let filename;
+                const today = new Date().toISOString().slice(0,10);
+                if (format === 'json') {
+                    blob = new Blob([JSON.stringify({ expenses: allExpenses }, null, 2)], { type: 'application/json;charset=utf-8' });
+                    filename = `vibespend-${today}.json`;
+                } else if (format === 'csv') {
+                    const header = ['id','type','description','amount','category','date','vibeScore'];
+                    const escapeCsv = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+                    const rows = allExpenses.map(e => [e.id, e.type, e.description, e.amount, e.category, e.date, e.vibeScore].map(escapeCsv).join(','));
+                    const csv = [header.join(','), ...rows].join('\n');
+                    blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+                    filename = `vibespend-${today}.csv`;
+                } else {
+                    showNotification("Unsupported export format.", "error");
+                    return;
+                }
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                showNotification(`Exported ${format.toUpperCase()} successfully.`, 'success');
+            } catch (err) {
+                console.error('Export error:', err);
+                showNotification('Failed to export data.', 'error');
+            }
+        }
+
+        // Clear All Data
+        async function clearAllData() {
+            if (!window.app) return;
+            const ok = confirm('This will permanently clear all your expenses. Continue?');
+            if (!ok) return;
+            try {
+                window.app.upiExpenses = [];
+                window.app.cashExpenses = [];
+                await window.app.saveData();
+                window.app.render();
+                window.app.updateStats();
+                showNotification('All data cleared.', 'success');
+            } catch (err) {
+                console.error('Clear error:', err);
+                showNotification('Failed to clear data.', 'error');
+            }
+        }
+
         // Quick Add (FAB)
         function quickAdd() {
-            if (!app) return;
-            app.showSection(app.currentSection === "upi" ? "cash" : "upi");
+            if (!window.app) return;
+            const next = window.app.currentSection === "upi" ? "cash" : "upi";
+            window.app.showSection(next);
+            setTimeout(() => {
+                try { document.getElementById(`${next}-desc`)?.focus(); } catch (_) {}
+            }, 0);
         }
 
         // Expose to window
