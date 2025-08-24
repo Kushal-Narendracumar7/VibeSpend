@@ -188,6 +188,8 @@
             text-align: center;
             margin-bottom: var(--space-10);
         }
+        
+      
 
         .auth-header h1 {
             font-family: 'Space Grotesk', sans-serif;
@@ -365,6 +367,9 @@
         }
 
         .header-title {
+            display:flex;
+            align-items:center;
+            justify-content:space-around;
             font-family: 'Oxanium', 'Space Grotesk', sans-serif;
             font-size: 2rem;
             font-weight: 700;
@@ -373,7 +378,17 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+        
+      
+        .logo-img{
+            height:60px;
+            width:60px;
+            object-fit:cover;
+            max-width:100%;
+            border-radius:50%;
+            border: 5px solid var(--secondary);
 
+        }
         .header-subtitle {
             color: var(--text-secondary);
             font-size: 1rem;
@@ -912,6 +927,7 @@
             display: flex;
             align-items: center;
             gap: var(--space-3);
+            color:white;
         }
 
         .notification.show {
@@ -1044,7 +1060,10 @@
                 grid-template-columns: 1fr;
                 gap: var(--space-4);
             }
-
+            .logo-img{
+                height:45px;
+                width:45px;
+            }
             .expense-item {
                 flex-direction: column;
                 align-items: flex-start;
@@ -1095,6 +1114,10 @@
 
             .auth-header h1 {
                 font-size: 2rem;
+            }
+            .logo-img{
+                height:35px;
+                width:35px;
             }
 
             .app-header {
